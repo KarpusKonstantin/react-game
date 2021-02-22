@@ -1,4 +1,13 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Snackbar from "@material-ui/core/Snackbar";
+import {Alert} from "@material-ui/lab";
+
 import './gameArea.css'
 
 
@@ -6,6 +15,28 @@ function GameArea(props) {
   const [score, setScore] = useState(0);
   const [prevCol, setPrevCol] = useState(0);
   const [prevRow, setPrevRow] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [openSnackBar, setOpenSnackBar] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleClickOpenSnackBar = () => {
+    setOpenSnackBar(true);
+  };
+
+  const handleCloseSnackBar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpenSnackBar(false);
+  };
 
   function getGameArea (num) {
     let content = [];
@@ -25,10 +56,82 @@ function GameArea(props) {
         row = i / num;
       }
 
-      content.push(<div className='cell emptyCell' data-col={col} data-row={row} key={i} onClick={cellClick}/>);
+      content.push(<div className='cell emptyCell' id={`col${col}row${row}`} data-col={col} data-row={row} key={i} onClick={cellClick}/>);
     }
 
     return content;
+  }
+
+  function getElementInGameArea(col, row) {
+    const id = `col${col}row${row}`;
+    return document.getElementById(id);
+  }
+
+
+  function statusGameCheck(cCol, cRow, score) {
+    let xCount = 0;
+
+    if  (((cCol - 2) >= 1) && ((cRow - 1) >= 1)) {
+      if (getElementInGameArea((cCol - 2), (cRow - 1)).innerText !== '') {
+        xCount = xCount + 1;
+      }
+    } else xCount = xCount + 1;
+
+    if (((cCol - 2) >= 1) && ((cRow - 2) >= 1)) {
+      if (getElementInGameArea((cCol - 1), (cRow - 2)).innerText !== '') {
+        xCount = xCount + 1;
+      }
+    } else xCount = xCount + 1;
+
+    if (((cCol + 1) <= 10) && ((cRow - 2) >= 1)) {
+      if (getElementInGameArea((cCol + 1), (cRow - 2)).innerText !== '') {
+        xCount = xCount + 1;
+      }
+    } else xCount = xCount + 1;
+
+    if (((cCol + 2) <= 10) && ((cRow - 1) >= 1)) {
+      if (getElementInGameArea((cCol + 2), (cRow - 1)).innerText !== '') {
+        xCount = xCount + 1;
+      }
+    } else xCount = xCount + 1;
+
+    if (((cCol + 2) <= 10) && ((cRow + 1) <= 10)) {
+      if (getElementInGameArea((cCol + 2), (cRow + 1)).innerText !== '') {
+        xCount = xCount + 1;
+      }
+    } else xCount = xCount + 1;
+
+    if (((cCol + 1) <= 10) && ((cRow + 2) <= 10)) {
+      if (getElementInGameArea((cCol + 1), (cRow + 2)).innerText !== '') {
+        xCount = xCount + 1;
+      }
+    } else xCount = xCount + 1;
+
+    if (((cCol - 1) >= 1) && ((cRow + 2) <= 10)) {
+      if (getElementInGameArea((cCol - 1), (cRow + 2)).innerText !== '') {
+        xCount = xCount + 1;
+      }
+    } else xCount = xCount + 1;
+
+    if (((cCol - 2) >= 1) && ((cRow + 1) <= 10)) {
+      if (getElementInGameArea((cCol - 2), (cRow + 1)).innerText !== '') {
+        xCount = xCount + 1;
+      }
+    } else xCount = xCount + 1;
+
+    if ((xCount === 8) && (score !== 100)) {
+      handleClickOpen();
+    }
+
+    //
+  //   if MaxCount = 100 {
+  //   begin
+  //   ShowMessage('Вы прошли игру!!!!');
+  //   Form4AddRecords.ShowModal;
+  //   SGField.Enabled = false;
+  //   end;
+  //
+  //
   }
 
   function cellClick(event) {
@@ -60,7 +163,7 @@ function GameArea(props) {
         setPrevRow(cRow);
 
       } else {
-        console.log('eeewfew')
+        handleClickOpenSnackBar()
       }
     } else {
       event.target.classList.remove('emptyCell');
@@ -72,12 +175,44 @@ function GameArea(props) {
       setPrevCol(cCol);
       setPrevRow(cRow);
     }
+
+    statusGameCheck(cCol, cRow, score);
   }
 
   return (
-    <div className='gameArea'>
-      {getGameArea(10)}
+    <div>
+      <div className='gameArea'>
+        {getGameArea(10)}
+      </div>
+
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Хотите повторить?"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Вам не удалось набрать максимальное количество баллов.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Неа
+          </Button>
+          <Button onClick={handleClose} color="primary" autoFocus>
+            Ага
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar open={openSnackBar} autoHideDuration={1000} onClose={handleCloseSnackBar} anchorOrigin={{vertical: 'top', horizontal: 'center'}}>
+        <Alert severity="error">Сюда ходить нельзя!</Alert>
+      </Snackbar>
+
     </div>
+
   );
 }
 
