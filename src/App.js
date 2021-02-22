@@ -8,6 +8,7 @@ import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import UndoIcon from '@material-ui/icons/Undo';
 import RefreshIcon from '@material-ui/icons/Refresh';
+import SettingsIcon from '@material-ui/icons/Settings';
 
 function App() {
 
@@ -22,7 +23,7 @@ function App() {
           <Button variant="contained" color="secondary" startIcon={<UndoIcon />} >Отменить ход</Button>
           <Button variant="contained" color="secondary" startIcon={<RefreshIcon />}>Новая игра</Button>
 
-          <Button variant="contained" color="default" startIcon={<UndoIcon />}>Настройки</Button>
+          <Button variant="contained" color="default" startIcon={<SettingsIcon />}>Настройки</Button>
           <Button variant="contained" color="default" startIcon={<RefreshIcon />}>Статистика</Button>
           <Button variant="contained" color="default" startIcon={<RefreshIcon />}>Об игре</Button>
 

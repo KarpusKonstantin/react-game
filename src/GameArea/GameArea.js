@@ -9,14 +9,13 @@ import Snackbar from "@material-ui/core/Snackbar";
 import { Alert } from "@material-ui/lab";
 
 import './gameArea.css'
-import Typography from "@material-ui/core/Typography";
-import Toolbar from "@material-ui/core/Toolbar";
 
 
 function GameArea(props) {
   const [score, setScore] = useState(0);
   const [prevCol, setPrevCol] = useState(0);
   const [prevRow, setPrevRow] = useState(0);
+
   const [open, setOpen] = useState(false);
   const [openSnackBar, setOpenSnackBar] = useState(false);
 
@@ -77,6 +76,7 @@ function GameArea(props) {
 
     localStorage.setItem('gameLog', JSON.stringify(gameLogArray));
   }
+
 
   function statusGameCheck(cCol, cRow, score) {
     let xCount = 0;
@@ -142,6 +142,24 @@ function GameArea(props) {
   //   end;
   //
   //
+  }
+
+  function clearArea() {
+    let cells = document.querySelectorAll('.cell');
+
+    cells.forEach((item) => {
+      item.innerText = '';
+      item.classList.remove('currentCell');
+      item.classList.remove('useCell');
+
+      if (!item.classList.contains('emptyCell')) {
+        item.classList.add('emptyCell');
+      }
+    });
+
+    setScore(0);
+
+    localStorage.removeItem('gameLog');
   }
 
   function cellClick(event) {
@@ -221,6 +239,35 @@ function GameArea(props) {
     });
   }
 
+  function undo() {
+    const gameLogArray = JSON.parse(localStorage.getItem('gameLog'));
+
+    if (gameLogArray && gameLogArray.length > 1) {
+      let el = getElementInGameArea(prevCol, prevRow);
+
+      el.innerText = '';
+      el.classList.remove('currentCell');
+      el.classList.add('emptyCell');
+
+      gameLogArray.pop();
+      const c = gameLogArray[gameLogArray.length - 1].col;
+      const r = gameLogArray[gameLogArray.length - 1].row;
+      const s = gameLogArray[gameLogArray.length - 1].score;
+
+      el = getElementInGameArea(c, r);
+      el.classList.remove('useCell');
+      el.classList.add('currentCell');
+
+      setPrevCol(c);
+      setPrevRow(r);
+      setScore(s);
+
+      localStorage.setItem('gameLog', JSON.stringify(gameLogArray));
+    } else {
+      clearArea();
+    }
+  }
+
   useEffect(() => {
     const gameLogArray = JSON.parse(localStorage.getItem('gameLog'));
     if (gameLogArray) {
@@ -230,7 +277,7 @@ function GameArea(props) {
 
   return (
     <div>
-      <div className="currentScore">
+      <div className="currentScore" onClick={undo}>
         Текущий счет: { score }
       </div>
       <div className='gameArea'>
