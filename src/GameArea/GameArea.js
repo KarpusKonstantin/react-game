@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -6,9 +6,11 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Snackbar from "@material-ui/core/Snackbar";
-import {Alert} from "@material-ui/lab";
+import { Alert } from "@material-ui/lab";
 
 import './gameArea.css'
+import Typography from "@material-ui/core/Typography";
+import Toolbar from "@material-ui/core/Toolbar";
 
 
 function GameArea(props) {
@@ -67,6 +69,14 @@ function GameArea(props) {
     return document.getElementById(id);
   }
 
+
+  function setGameLog(col, row, score) {
+    let gameLogArray = JSON.parse(localStorage.getItem('gameLog')) || [];
+
+    gameLogArray.push({col, row, score});
+
+    localStorage.setItem('gameLog', JSON.stringify(gameLogArray));
+  }
 
   function statusGameCheck(cCol, cRow, score) {
     let xCount = 0;
@@ -138,9 +148,10 @@ function GameArea(props) {
     const cCol = Number(event.target.dataset.col);
     const cRow = Number(event.target.dataset.row);
     const cScore = event.target.innerText;
+    let xScore = 0;
 
-    console.log(cCol, cRow, cScore);
-    console.log(prevCol, prevRow);
+    // console.log(cCol, cRow, cScore);
+    // console.log(prevCol, prevRow);
 
 
     if (score !== 0) {
@@ -153,24 +164,38 @@ function GameArea(props) {
       ((cCol === prevCol - 1) && (cRow === prevRow + 2) && (cScore === '')) ||
       ((cCol === prevCol - 2) && (cRow === prevRow + 1) && (cScore === '')))
       {
-        event.target.classList.remove('emptyCell');
-        event.target.classList.add('useCell');
+        const prevEl = getElementInGameArea(prevCol, prevRow);
 
-        setScore(score + 1);
-        event.target.innerText = score;
+        prevEl.classList.remove('currentCell');
+        prevEl.classList.add('useCell');
+
+        event.target.classList.remove('emptyCell');
+        event.target.classList.add('currentCell');
+
+        xScore = score + 1;
+        setScore(xScore);
+
+        event.target.innerText = xScore;
+
+        setGameLog(cCol, cRow, xScore);
 
         setPrevCol(cCol);
         setPrevRow(cRow);
 
       } else {
         handleClickOpenSnackBar()
+        return;
       }
     } else {
       event.target.classList.remove('emptyCell');
-      event.target.classList.add('useCell');
+      event.target.classList.add('currentCell');
 
-      setScore(score + 1);
-      event.target.innerText = score;
+      xScore = score + 1;
+      setScore(xScore);
+
+      event.target.innerText = xScore;
+
+      setGameLog(cCol, cRow, xScore);
 
       setPrevCol(cCol);
       setPrevRow(cRow);
@@ -179,8 +204,35 @@ function GameArea(props) {
     statusGameCheck(cCol, cRow, score);
   }
 
+  function loadSaveGame(gameLogArray) {
+    gameLogArray.forEach((item, idx, array) => {
+      const el = getElementInGameArea(item.col, item.row);
+      el.innerText = item.score;
+      el.classList.remove('emptyCell');
+
+      if (idx === array.length - 1) {
+        el.classList.add('currentCell');
+        setScore(item.score);
+        setPrevCol(item.col);
+        setPrevRow(item.row);
+      } else {
+        el.classList.add('useCell');
+      }
+    });
+  }
+
+  useEffect(() => {
+    const gameLogArray = JSON.parse(localStorage.getItem('gameLog'));
+    if (gameLogArray) {
+      loadSaveGame(gameLogArray);
+    }
+  }, [props.counter]);
+
   return (
     <div>
+      <div className="currentScore">
+        Текущий счет: { score }
+      </div>
       <div className='gameArea'>
         {getGameArea(10)}
       </div>
