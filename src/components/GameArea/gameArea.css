@@ -38,10 +38,7 @@
     justify-items: center;
 }
 
-.currentScore {
-    text-align: center;
-    color: maroon;
-    font-weight: bold;
-    font-size: 1.5em;
-    margin-bottom: 5px;
+.hintCell {
+    cursor: pointer;
+    background: red;
 }
