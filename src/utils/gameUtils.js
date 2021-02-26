@@ -1,4 +1,5 @@
 import React from 'react';
+import errorSound from "../components/MyAudio/error.mp3";
 
 export function getElementInGameArea(col, row) {
   const id = `col${col}row${row}`;
@@ -128,4 +129,24 @@ export function showHint(col, row) {
       el.classList.add('hintCell');
     }
   });
+}
+
+export function playSound(selector, src, volume) {
+  if (!document) {
+    return ;
+  }
+
+  console.log('volume >>', volume)
+
+  const audio = document.querySelector(selector);
+
+
+  if (audio) {
+    audio.autoplay = true;
+    audio.volume = volume;
+
+    audio.setAttribute('src', src);
+  } else {
+    console.log('Не найден элемент для воспроизведения!');
+  }
 }

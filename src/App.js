@@ -4,34 +4,72 @@ import Header from "./components/Header/Header";
 import InfoPanel from "./components/InfoPanel/InfoPanel";
 import GameArea from "./components/GameArea/GameArea";
 import Container from "@material-ui/core/Container";
-import {getElementInGameArea, statusGameCheck, setGameLog, clearArea, showHint, hideHint} from "./utils/gameUtils";
+import {
+  getElementInGameArea,
+  statusGameCheck,
+  setGameLog,
+  clearArea,
+  showHint,
+  hideHint,
+  playSound
+} from "./utils/gameUtils";
 import ModalDialog from "./components/ModalDialog/ModalDialog";
 import Notification from "./components/Notification/Notification";
 import TemporaryDrawer from "./components/OptionsPanel/OptionsPanel";
+import MyAudio from "./components/MyAudio/MyAudio";
+import errorSound from "./components/MyAudio/error.mp3"
+import correctSound from "./components/MyAudio/correct.mp3"
+import bgSound from "./components/MyAudio/Medianoche.mp3"
+import {useDispatch, useSelector} from "react-redux";
+import {store} from "./reducers";
+import {element} from "prop-types";
+
 
 function App() {
   const [score, setScore] = useState(0);
   const [prevCol, setPrevCol] = useState(0);
   const [prevRow, setPrevRow] = useState(0);
 
+  const optionsListener = useSelector(state => {
+    const options = state.repos.options
+
+    if (options.hint) {
+      showHint(prevCol, prevRow)
+    } else {
+      hideHint();
+    }
+
+    return options;
+  })
+
   const [options, setOptions] = useState({
-    hint: false
+    hint: false,
+    infoSoundMute: true,
+    infoSoundVolume: 1,
+    bgSoundMute: false,
+    bgSoundVolume: 1
   });
 
   const [openOptions, setOpenOptions] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [openNotification, setOpenNotification] = useState(false);
 
-
   function handleCloseModalDialog() {
     setOpenModal(false);
   }
+
+
 
   function handleOpenModalDialog() {
     setOpenModal(true);
   }
 
   const handleOpenNotification = () => {
+    if (!options.infoSoundMute) {
+      console.log('options.infoSoundVolume >> ', options);
+      playSound('.audio', errorSound, options.infoSoundVolume);
+    }
+
     setOpenNotification(true);
   };
 
@@ -49,6 +87,8 @@ function App() {
     }
 
     if (!open) {
+      console.log('options >> ', options);
+      localStorage.removeItem('gameOptions');
       localStorage.setItem('gameOptions', JSON.stringify(options));
     }
 
@@ -57,6 +97,11 @@ function App() {
 
   function setNewScore(event, col, row) {
     let xScore = 0;
+
+    if (!options.infoSoundMute) {
+      console.log('setNewScore volume >>', options.infoSoundVolume)
+      playSound('.audio', correctSound, options.infoSoundVolume);
+    }
 
     event.target.classList.remove('emptyCell');
     event.target.classList.add('currentCell');
@@ -169,6 +214,7 @@ function App() {
   }
 
   const handleOptionsChange = (event) => {
+    console.log('event.target.name >> ', event.target.name);
     setOptions({ ...options, [event.target.name]: event.target.checked });
 
     if ((event.target.name === 'hint') && (event.target.checked === false)) {
@@ -179,6 +225,7 @@ function App() {
   };
 
   useEffect(() => {
+
     if (options.hint) {
       showHint(prevCol, prevRow);
     }
@@ -188,6 +235,9 @@ function App() {
     const gameLogArray = JSON.parse(localStorage.getItem('gameLog'));
     const gameOptions = JSON.parse(localStorage.getItem('gameOptions'));
 
+    console.log('gameOptions >>', gameOptions);
+
+    // playSound('.audio', errorSound, options.bgSoundVolume);
 
     if (gameLogArray) {
       loadSaveGame(gameLogArray);
@@ -221,7 +271,8 @@ function App() {
       </Container>
 
       <ModalDialog isOpen={ openModal } onClose={ handleCloseModalDialog } onNewGame={ clearAreaClick }/>
-      <Notification isOpen={ openNotification } onClose={ handleCloseNotification } />
+      <Notification isOpen={ openNotification } onClose={ handleCloseNotification } soundMute={ false } />
+      <MyAudio />
     </div>
   );
 }

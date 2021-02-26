@@ -1,3 +1,7 @@
 .optionsPanel {
     width: 250px;
 }
+
+.optionsPanel-title {
+    text-align: center;
+}

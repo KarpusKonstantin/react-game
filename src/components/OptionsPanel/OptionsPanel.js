@@ -4,21 +4,34 @@ import './optionsPanel.css'
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
+import VolumeSettings from "../VolumeSettings/VolumeSettings";
+import {useDispatch, useSelector} from "react-redux";
+import {setHint} from "../../reducers/reposReducer"
 
 export default function TemporaryDrawer(props) {
+  const dispatch = useDispatch();
+  const hintValue = useSelector(state => state.repos.options.hint)
+
+  function hintChange(event) {
+    dispatch(setHint(event.target.checked));
+  }
 
   return (
     <div>
       <Drawer anchor={'left'} open={props.isOpen} onClose={props.onClose(false)}>
         <div className="optionsPanel">
-          <h1>Настройки</h1>
+          <div className="optionsPanel-title"><h1>Настройки</h1></div>
 
           <FormGroup row>
             <FormControlLabel
-              control={< Switch checked={ props.onUseHint } onChange={ props.onClickHint } name="hint" /> }
+              control={< Switch checked={ hintValue } onChange={ hintChange } name="hint" /> }
               label="Включить подсказки"
             />
           </FormGroup>
+
+          <VolumeSettings title={'Настройка звуков'} />
+          <VolumeSettings title={'Настройка музыки'} />
+
         </div>
       </Drawer>
     </div>
