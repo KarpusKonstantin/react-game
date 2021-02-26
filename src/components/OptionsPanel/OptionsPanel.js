@@ -8,7 +8,7 @@ import VolumeSettings from "../VolumeSettings/VolumeSettings";
 import {useDispatch, useSelector} from "react-redux";
 import {setHint} from "../../reducers/reposReducer"
 
-export default function TemporaryDrawer(props) {
+export default function OptionsPanel(props) {
   const dispatch = useDispatch();
   const hintValue = useSelector(state => state.repos.options.hint)
 
@@ -29,8 +29,8 @@ export default function TemporaryDrawer(props) {
             />
           </FormGroup>
 
-          <VolumeSettings title={'Настройка звуков'} />
-          <VolumeSettings title={'Настройка музыки'} />
+          <VolumeSettings title={'Настройка звуков'} name="sound"  />
+          <VolumeSettings title={'Настройка музыки'} name="music"  />
 
         </div>
       </Drawer>

@@ -13,7 +13,7 @@ export const store = createStore(rootReducer,composeWithDevTools(applyMiddleware
 store.subscribe(() => {
   const state = store.getState().repos;
 
-  console.log('store.getState >>', state);
+  console.log('store.getState >>', JSON.stringify(state));
   localStorage.setItem('gameOptions', JSON.stringify(state));
 });
 

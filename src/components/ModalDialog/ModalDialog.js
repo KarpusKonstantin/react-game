@@ -16,7 +16,8 @@ function ModalDialog(props) {
       <DialogTitle id="alert-dialog-title">{"Хотите повторить?"}</DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
-          Вам не удалось набрать максимальное количество баллов.
+          Вам не удалось набрать максимальные 100 баллов - заполнив все клеточки
+
         </DialogContentText>
       </DialogContent>
       <DialogActions>

@@ -2,7 +2,7 @@ import React from 'react';
 
 function MyAudio(props) {
   return (
-    <audio className="audio" autoPlay={true} />
+    <audio className={props.audioClass} autoPlay={true} />
   )
 }
 

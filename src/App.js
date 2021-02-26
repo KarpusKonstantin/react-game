@@ -15,14 +15,16 @@ import {
 } from "./utils/gameUtils";
 import ModalDialog from "./components/ModalDialog/ModalDialog";
 import Notification from "./components/Notification/Notification";
-import TemporaryDrawer from "./components/OptionsPanel/OptionsPanel";
 import MyAudio from "./components/MyAudio/MyAudio";
 import errorSound from "./components/MyAudio/error.mp3"
 import correctSound from "./components/MyAudio/correct.mp3"
 import bgSound from "./components/MyAudio/Medianoche.mp3"
+
 import {useDispatch, useSelector} from "react-redux";
-import {store} from "./reducers";
-import {element} from "prop-types";
+import {setOptions} from "./reducers/reposReducer";
+import OptionsPanel from "./components/OptionsPanel/OptionsPanel";
+import Statistics from "./components/Statistics/Startistics";
+import { v4 as uuidv4 } from 'uuid'
 
 
 function App() {
@@ -30,10 +32,17 @@ function App() {
   const [prevCol, setPrevCol] = useState(0);
   const [prevRow, setPrevRow] = useState(0);
 
-  const optionsListener = useSelector(state => {
+  const [openOptions, setOpenOptions] = useState(false);
+  const [openStatistics, setOpenStatistics] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
+  const [openNotification, setOpenNotification] = useState(false);
+
+  const dispatch = useDispatch();
+
+  const optionsStore = useSelector(state => {
     const options = state.repos.options
 
-    if (options.hint) {
+    if ((options.hint) && (score !== 0)) {
       showHint(prevCol, prevRow)
     } else {
       hideHint();
@@ -42,32 +51,52 @@ function App() {
     return options;
   })
 
-  const [options, setOptions] = useState({
-    hint: false,
-    infoSoundMute: true,
-    infoSoundVolume: 1,
-    bgSoundMute: false,
-    bgSoundVolume: 1
-  });
-
-  const [openOptions, setOpenOptions] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
-  const [openNotification, setOpenNotification] = useState(false);
 
   function handleCloseModalDialog() {
     setOpenModal(false);
   }
 
-
-
   function handleOpenModalDialog() {
+    const gameStatistics = JSON.parse(localStorage.getItem('gameStatistics')) || [];
+    const date = new Date();
+
+    gameStatistics.push({
+      id: uuidv4(),
+      date: date.toLocaleDateString('ru-RU') + ' ' + date.toLocaleTimeString('ru-Ru'),
+      score: score
+    });
+
+    if (gameStatistics.length > 10) {
+      gameStatistics.pop();
+    }
+
+    localStorage.setItem('gameStatistics', JSON.stringify(gameStatistics));
+
     setOpenModal(true);
   }
 
+  function getStatistics() {
+    const columnsData = [
+      { field: 'date', headerName: 'Дата игры', width: 150 },
+      { field: 'score', headerName: 'Набранные очки', width: 250 },
+    ];
+    const rowsData = JSON.parse(localStorage.getItem('gameStatistics')) || [];
+
+    const data = {
+      columns: columnsData,
+      rows: rowsData
+    }
+
+    console.log('Статистика >>', data);
+
+    return data;
+  }
+
   const handleOpenNotification = () => {
-    if (!options.infoSoundMute) {
-      console.log('options.infoSoundVolume >> ', options);
-      playSound('.audio', errorSound, options.infoSoundVolume);
+    console.log('optionsStore.sound.mute >>', optionsStore.sound.mute);
+
+    if ((optionsStore.sound.mute) && (optionsStore.sound.volume > 0)) {
+      playSound('.audio', errorSound, optionsStore.sound.volume);
     }
 
     setOpenNotification(true);
@@ -81,26 +110,31 @@ function App() {
     setOpenNotification(false);
   };
 
-  const toggleDrawer = (open) => (event) => {
+  const toggleOptionsPanel = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return;
-    }
-
-    if (!open) {
-      console.log('options >> ', options);
-      localStorage.removeItem('gameOptions');
-      localStorage.setItem('gameOptions', JSON.stringify(options));
     }
 
     setOpenOptions(open);
   };
 
+  const toggleStatisticsPanel = (open) => (event) => {
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return;
+    }
+
+    if (open) {
+      getStatistics();
+    }
+
+    setOpenStatistics(open);
+  };
+
   function setNewScore(event, col, row) {
     let xScore = 0;
 
-    if (!options.infoSoundMute) {
-      console.log('setNewScore volume >>', options.infoSoundVolume)
-      playSound('.audio', correctSound, options.infoSoundVolume);
+    if ((optionsStore.sound.mute) && (optionsStore.sound.volume)) {
+      playSound('.audio', correctSound, optionsStore.sound.volume);
     }
 
     event.target.classList.remove('emptyCell');
@@ -113,7 +147,7 @@ function App() {
 
     setGameLog(col, row, xScore);
 
-    if (options.hint) {
+    if (optionsStore.hint) {
       showHint(col, row);
     }
 
@@ -125,9 +159,6 @@ function App() {
     const cCol = Number(event.target.dataset.col);
     const cRow = Number(event.target.dataset.row);
     const cScore = event.target.innerText;
-
-    // console.log(cCol, cRow, cScore);
-    // console.log(prevCol, prevRow);
 
     if (score !== 0) {
       if (
@@ -213,38 +244,24 @@ function App() {
     });
   }
 
-  const handleOptionsChange = (event) => {
-    console.log('event.target.name >> ', event.target.name);
-    setOptions({ ...options, [event.target.name]: event.target.checked });
-
-    if ((event.target.name === 'hint') && (event.target.checked === false)) {
-      hideHint()
-    } else if ((event.target.name === 'hint') && (event.target.checked === true)){
-      showHint(prevCol, prevRow);
-    }
-  };
-
-  useEffect(() => {
-
-    if (options.hint) {
-      showHint(prevCol, prevRow);
-    }
-  }, [options])
-
   useEffect(() => {
     const gameLogArray = JSON.parse(localStorage.getItem('gameLog'));
     const gameOptions = JSON.parse(localStorage.getItem('gameOptions'));
 
-    console.log('gameOptions >>', gameOptions);
+    console.log('Загружаем сохраненные настройки >>', gameOptions);
 
-    // playSound('.audio', errorSound, options.bgSoundVolume);
+    if (gameOptions) {
+      if ((gameOptions.options.music.mute) && (gameOptions.options.music.volume > 0)) {
+        playSound('.bgaudio', bgSound, gameOptions.options.music.volume)
+      }
+    }
 
     if (gameLogArray) {
       loadSaveGame(gameLogArray);
     }
 
     if (gameOptions) {
-      setOptions(gameOptions);
+      dispatch(setOptions(gameOptions.options));
     }
 
   }, []);
@@ -254,14 +271,18 @@ function App() {
       <Header
         undoClick={ undo }
         newGameClick={ clearAreaClick }
-        openSettings={ toggleDrawer }
+        openSettings={ toggleOptionsPanel }
+        openStatistics={ toggleStatisticsPanel }
       />
 
-      <TemporaryDrawer
+      <OptionsPanel
         isOpen={ openOptions }
-        onClose={ toggleDrawer }
-        onUseHint={ options.hint }
-        onClickHint={ handleOptionsChange }
+        onClose={ toggleOptionsPanel }
+      />
+
+      <Statistics
+        isOpen={ openStatistics }
+        onClose={ toggleStatisticsPanel }
       />
 
       <InfoPanel score={ score } />
@@ -272,7 +293,8 @@ function App() {
 
       <ModalDialog isOpen={ openModal } onClose={ handleCloseModalDialog } onNewGame={ clearAreaClick }/>
       <Notification isOpen={ openNotification } onClose={ handleCloseNotification } soundMute={ false } />
-      <MyAudio />
+      <MyAudio audioClass={'audio'} />
+      <MyAudio audioClass={'bgaudio'} />
     </div>
   );
 }

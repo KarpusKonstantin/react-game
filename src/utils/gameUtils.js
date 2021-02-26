@@ -133,6 +133,7 @@ export function showHint(col, row) {
 
 export function playSound(selector, src, volume) {
   if (!document) {
+    console.log('Не найден объуйкт document [playSound]');
     return ;
   }
 
@@ -142,10 +143,10 @@ export function playSound(selector, src, volume) {
 
 
   if (audio) {
+    audio.setAttribute('src', src);
+
     audio.autoplay = true;
     audio.volume = volume;
-
-    audio.setAttribute('src', src);
   } else {
     console.log('Не найден элемент для воспроизведения!');
   }

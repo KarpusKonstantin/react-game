@@ -22,7 +22,7 @@ function Header(props) {
           <Button variant="contained" color="secondary" startIcon={<RefreshIcon />} onClick={props.newGameClick}>Новая игра</Button>
 
           <Button variant="contained" color="default" startIcon={<SettingsIcon />} onClick={props.openSettings(true)}>Настройки</Button>
-          <Button variant="contained" color="default" startIcon={<RefreshIcon />}>Статистика</Button>
+          <Button variant="contained" color="default" startIcon={<RefreshIcon />} onClick={props.openStatistics(true)}>Статистика</Button>
           <Button variant="contained" color="default" startIcon={<RefreshIcon />}>Об игре</Button>
 
         </Toolbar>
