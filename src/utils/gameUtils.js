@@ -107,10 +107,8 @@ export function hideHint() {
   });
 }
 
-export function showHint(col, row) {
+export function getStepVariantArray(col, row) {
   const hintArray = [];
-
-  hideHint();
 
   hintArray.push({col: col - 2, row: row - 1});
   hintArray.push({col: col - 1, row: row - 2});
@@ -121,6 +119,14 @@ export function showHint(col, row) {
   hintArray.push({col: col - 1, row: row + 2});
   hintArray.push({col: col - 2, row: row + 1});
 
+  return hintArray;
+}
+
+export function showHint(col, row) {
+  const hintArray = getStepVariantArray(col, row);
+
+  hideHint();
+
   hintArray.forEach((item) => {
     const el = getElementInGameArea(item.col, item.row);
 
@@ -129,6 +135,8 @@ export function showHint(col, row) {
       el.classList.add('hintCell');
     }
   });
+
+  return hintArray;
 }
 
 export function playSound(selector, src, volume) {
@@ -137,7 +145,7 @@ export function playSound(selector, src, volume) {
     return ;
   }
 
-  console.log('volume >>', volume)
+  // console.log('volume >>', volume)
 
   const audio = document.querySelector(selector);
 
@@ -150,4 +158,10 @@ export function playSound(selector, src, volume) {
   } else {
     console.log('Не найден элемент для воспроизведения!');
   }
+}
+
+export function getRandomIntInclusive(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min; //Максимум и минимум включаются
 }

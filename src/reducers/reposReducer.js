@@ -4,7 +4,7 @@ const SET_SOUND_VOLUME = "SET_SOUND_VOLUME";
 const SET_MUSIC_MUTE = "SET_MUSIC_MUTE";
 const SET_MUSIC_VOLUME = "SET_MUSIC_VOLUME";
 const SET_OPTIONS = "SET_OPTIONS";
-
+const SET_AUTOPLAY = "SET_AUTOPLAY";
 
 const defaultState = {
   options: {
@@ -17,7 +17,8 @@ const defaultState = {
       mute: true,
       volume: 0.5
     }
-  }
+  },
+  autoPlay: false
 }
 
 export default function reposReducer(state = defaultState, action) {
@@ -26,6 +27,11 @@ export default function reposReducer(state = defaultState, action) {
       return {
         ...state,
         options: action.payload
+      }
+    case SET_AUTOPLAY:
+      return {
+        ...state,
+        autoPlay: action.payload
       }
     case SET_HINT:
       return {
@@ -94,3 +100,4 @@ export const setSoundVolume = (volume) => ({type:SET_SOUND_VOLUME, payload:volum
 export const setMusicMute = (mute) => ({type:SET_MUSIC_MUTE, payload:mute});
 export const setMusicVolume = (volume) => ({type:SET_MUSIC_VOLUME, payload:volume});
 export const setOptions = (options) => ({type:SET_OPTIONS, payload:options});
+export const setAutoPlay = (bool) => ({type:SET_AUTOPLAY, payload:bool});

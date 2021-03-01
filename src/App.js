@@ -11,7 +11,8 @@ import {
   clearArea,
   showHint,
   hideHint,
-  playSound
+  playSound,
+  getRandomIntInclusive, getStepVariantArray
 } from "./utils/gameUtils";
 import ModalDialog from "./components/ModalDialog/ModalDialog";
 import Notification from "./components/Notification/Notification";
@@ -26,6 +27,8 @@ import OptionsPanel from "./components/OptionsPanel/OptionsPanel";
 import Statistics from "./components/Statistics/Startistics";
 import { v4 as uuidv4 } from 'uuid'
 
+let timerId = 0;
+
 
 function App() {
   const [score, setScore] = useState(0);
@@ -37,10 +40,12 @@ function App() {
   const [openModal, setOpenModal] = useState(false);
   const [openNotification, setOpenNotification] = useState(false);
 
+  // let timerId = 0;
+
   const dispatch = useDispatch();
 
   const optionsStore = useSelector(state => {
-    const options = state.repos.options
+    const options = state.repos.options;
 
     if ((options.hint) && (score !== 0)) {
       showHint(prevCol, prevRow)
@@ -50,6 +55,97 @@ function App() {
 
     return options;
   })
+
+  const autoPlay = useSelector(state => state.repos.autoPlay);
+
+  useEffect(() => {
+    const gameLogArray = JSON.parse(localStorage.getItem('gameLog'));
+    const gameOptions = JSON.parse(localStorage.getItem('gameOptions'));
+
+    console.log('Загружаем сохраненные настройки >>', gameOptions);
+
+    if (gameOptions) {
+      if ((gameOptions.options.music.mute) && (gameOptions.options.music.volume > 0)) {
+        playSound('.bgaudio', bgSound, gameOptions.options.music.volume)
+      }
+    }
+
+    if (gameLogArray) {
+      loadSaveGame(gameLogArray);
+    }
+
+    if (gameOptions) {
+      dispatch(setOptions(gameOptions.options));
+    }
+
+  }, []);
+
+
+  useEffect(() => {
+    let varStepArray = [];
+
+    const col = prevCol;
+    const row = prevRow;
+
+    console.log('[useEffect] prevCol, prevRow >>', col, row);
+
+    if (autoPlay) {
+      varStepArray = getStepVariantArray(col, row);
+
+      varStepArray = varStepArray.filter((item) => {
+        const el = getElementInGameArea(item.col, item.row);
+
+        if ((el) && (el.innerText === '')) {
+          return item;
+        }
+      });
+
+      if (varStepArray.length !== 0) {
+        let n = varStepArray.length - 1;
+        n = getRandomIntInclusive(0, n);
+
+        const el = getElementInGameArea(varStepArray[n].col, varStepArray[n].row);
+        setTimeout(() => {el.click()}, 500);
+
+      } else {
+
+      }
+    }
+  }, [prevCol, prevRow]);
+
+  useEffect(() => {
+    console.log('[useEffect] autoPlay >>', autoPlay, timerId);
+
+    if ((autoPlay) && (timerId === 0)) {
+      autoPlayStart(999);
+
+      timerId = 999;
+
+      console.log('Начало автоигры >>', timerId);
+
+    } else {
+      console.log('Окончание автоигры >>', timerId);
+
+      clearInterval(timerId)
+      timerId = 0;
+    }
+
+  }, [autoPlay]);
+
+  useEffect(() => {
+
+    console.log('1. useEffect [score] timerId, score >> ', timerId, score);
+
+    if ((timerId > 0) && (score === 0)) {
+      console.log('2. useEffect [score] timerId, score >> ', timerId, score);
+
+      let row = getRandomIntInclusive(1, 10);
+      let col = getRandomIntInclusive(1, 10);
+
+      const el = getElementInGameArea(col,row);
+      el.click();
+    }
+  }, [score]);
 
 
   function handleCloseModalDialog() {
@@ -73,23 +169,6 @@ function App() {
     localStorage.setItem('gameStatistics', JSON.stringify(gameStatistics));
 
     setOpenModal(true);
-  }
-
-  function getStatistics() {
-    const columnsData = [
-      { field: 'date', headerName: 'Дата игры', width: 150 },
-      { field: 'score', headerName: 'Набранные очки', width: 250 },
-    ];
-    const rowsData = JSON.parse(localStorage.getItem('gameStatistics')) || [];
-
-    const data = {
-      columns: columnsData,
-      rows: rowsData
-    }
-
-    console.log('Статистика >>', data);
-
-    return data;
   }
 
   const handleOpenNotification = () => {
@@ -121,10 +200,6 @@ function App() {
   const toggleStatisticsPanel = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return;
-    }
-
-    if (open) {
-      getStatistics();
     }
 
     setOpenStatistics(open);
@@ -244,27 +319,51 @@ function App() {
     });
   }
 
-  useEffect(() => {
-    const gameLogArray = JSON.parse(localStorage.getItem('gameLog'));
-    const gameOptions = JSON.parse(localStorage.getItem('gameOptions'));
 
-    console.log('Загружаем сохраненные настройки >>', gameOptions);
 
-    if (gameOptions) {
-      if ((gameOptions.options.music.mute) && (gameOptions.options.music.volume > 0)) {
-        playSound('.bgaudio', bgSound, gameOptions.options.music.volume)
-      }
+  function autoPlayStart(tId = 0) {
+    clearAreaClick();
+
+    console.log('1. autoPlayStart timerId, score >> ', tId, score);
+
+    if ((tId > 0) && (score === 0)) {
+      console.log('2. autoPlayStart timerId, score >> ', tId, score);
+
+      let row = getRandomIntInclusive(1, 10);
+      let col = getRandomIntInclusive(1, 10);
+
+      const el = getElementInGameArea(row,col);
+      el.click();
     }
+  }
 
-    if (gameLogArray) {
-      loadSaveGame(gameLogArray);
-    }
+  function autoPlayStep() {
+    // const varStepArray = [];
 
-    if (gameOptions) {
-      dispatch(setOptions(gameOptions.options));
-    }
+    const col = prevCol;
+    const row = prevRow;
 
-  }, []);
+    console.log('autoPlayStep >>', col, row);
+
+    // varStepArray.push({col: col - 2, row: row - 1});
+    // varStepArray.push({col: col - 1, row: row - 2});
+    // varStepArray.push({col: col + 1, row: row - 2});
+    // varStepArray.push({col: col + 2, row: row - 1});
+    // varStepArray.push({col: col + 2, row: row + 1});
+    // varStepArray.push({col: col + 1, row: row + 2});
+    // varStepArray.push({col: col - 1, row: row + 2});
+    // varStepArray.push({col: col - 2, row: row + 1});
+    //
+    // varStepArray.forEach((item) => {
+    //   const el = getElementInGameArea(item.col, item.row);
+    //
+    //   if ((el) && (el.innerText === '')) {
+    //     return item;
+    //   }
+    // });
+    //
+    // console.log(varStepArray)
+  }
 
   return (
     <div>
