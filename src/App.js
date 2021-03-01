@@ -43,6 +43,7 @@ function App() {
   // let timerId = 0;
 
   const dispatch = useDispatch();
+  const autoPlaySpeed = useSelector(state => state.repos.autoPlaySpeed);
 
   const optionsStore = useSelector(state => {
     const options = state.repos.options;
@@ -105,7 +106,7 @@ function App() {
         n = getRandomIntInclusive(0, n);
 
         const el = getElementInGameArea(varStepArray[n].col, varStepArray[n].row);
-        setTimeout(() => {el.click()}, 500);
+        setTimeout(() => {el.click()}, autoPlaySpeed);
 
       } else {
 
@@ -153,13 +154,17 @@ function App() {
   }
 
   function handleOpenModalDialog() {
-    const gameStatistics = JSON.parse(localStorage.getItem('gameStatistics')) || [];
+    let gameStatistics = JSON.parse(localStorage.getItem('gameStatistics')) || [];
     const date = new Date();
 
     gameStatistics.push({
       id: uuidv4(),
       date: date.toLocaleDateString('ru-RU') + ' ' + date.toLocaleTimeString('ru-Ru'),
-      score: score
+      score: score + 1
+    });
+
+    gameStatistics = gameStatistics.sort((a, b) => {
+      return b.score - a.score;
     });
 
     if (gameStatistics.length > 10) {

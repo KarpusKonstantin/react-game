@@ -1,7 +1,15 @@
 .optionsPanel {
-    width: 250px;
+    width: 350px;
 }
 
 .optionsPanel-title {
     text-align: center;
+}
+
+.hintSwitch {
+    margin-bottom: 25px;
+}
+
+.speedAutoPlay {
+    width: 250px;
 }
