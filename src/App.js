@@ -22,10 +22,11 @@ import correctSound from "./components/MyAudio/correct.mp3"
 import bgSound from "./components/MyAudio/Medianoche.mp3"
 
 import {useDispatch, useSelector} from "react-redux";
-import {setOptions} from "./reducers/reposReducer";
+import {setAutoPlay, setHint, setMusicMute, setOptions, setSoundMute} from "./reducers/reposReducer";
 import OptionsPanel from "./components/OptionsPanel/OptionsPanel";
 import Statistics from "./components/Statistics/Startistics";
 import { v4 as uuidv4 } from 'uuid'
+import About from "./components/About/About";
 
 let timerId = 0;
 
@@ -37,16 +38,19 @@ function App() {
 
   const [openOptions, setOpenOptions] = useState(false);
   const [openStatistics, setOpenStatistics] = useState(false);
+  const [openAbout, setOpenAbout] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [openNotification, setOpenNotification] = useState(false);
 
-  // let timerId = 0;
+  let altPress, shiftPress, ctrlPress;
 
   const dispatch = useDispatch();
   const autoPlaySpeed = useSelector(state => state.repos.autoPlaySpeed);
 
   const optionsStore = useSelector(state => {
     const options = state.repos.options;
+
+    console.log('use selector >>', options.hint);
 
     if ((options.hint) && (score !== 0)) {
       showHint(prevCol, prevRow)
@@ -58,6 +62,68 @@ function App() {
   })
 
   const autoPlay = useSelector(state => state.repos.autoPlay);
+
+  function keyDownEvent(event) {
+    const codeKey = event.code;
+
+    if ((codeKey === 'AltLeft') || (codeKey === 'AltRight')) {
+      altPress = true;
+    }
+
+    if ((codeKey === 'ShiftRight') || (codeKey === 'ShiftLeft')) {
+      shiftPress = true;
+    }
+
+    if ((codeKey === 'ControlLeft') || (codeKey === 'ControlRight')) {
+      ctrlPress = true;
+    }
+  }
+
+  function keyUpEvent(event) {
+    const codeKey = event.code;
+
+    if ((codeKey === 'AltLeft') || (codeKey === 'AltRight')) {
+      altPress = false;
+    }
+
+    if ((codeKey === 'ShiftRight') || (codeKey === 'ShiftLeft')) {
+      shiftPress = false;
+    }
+
+    if ((codeKey === 'ControlLeft') || (codeKey === 'ControlRight')) {
+      ctrlPress = false;
+    }
+
+    if (ctrlPress && altPress && (codeKey === 'KeyN')) {
+      console.log('CTRL + ALT + N - Новая Игра');
+
+      clearAreaClick();
+
+    } else if (ctrlPress && altPress && (codeKey === 'KeyH')) {
+      console.log('CTRL + ALT + H - Включить подсказку', optionsStore.hint);
+
+      dispatch(setHint(!optionsStore.hint))
+
+    } else if (ctrlPress && altPress && (codeKey === 'KeyS')) {
+      console.log('CTRL + ALT + S - Статистика');
+
+      setOpenStatistics(true);
+
+    } else if (ctrlPress && altPress && (codeKey === 'KeyA')) {
+      console.log('CTRL + ALT + A - Автоигра');
+      dispatch(setAutoPlay(!autoPlay))
+
+    } else if (ctrlPress && altPress && (codeKey === 'KeyZ')) {
+      console.log('CTRL + ALT + Z - Вкл/выкл звуки');
+      dispatch(setSoundMute(!optionsStore.sound.mute))
+
+
+    } else if (ctrlPress && altPress && (codeKey === 'KeyM')) {
+      console.log('CTRL + ALT + M - Вкл/Выкл музыку');
+      dispatch(setMusicMute(!optionsStore.music.mute))
+
+    }
+}
 
   useEffect(() => {
     const gameLogArray = JSON.parse(localStorage.getItem('gameLog'));
@@ -210,6 +276,14 @@ function App() {
     setOpenStatistics(open);
   };
 
+  const toggleAboutPanel = (open) => (event) => {
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return;
+    }
+
+    setOpenAbout(open);
+  };
+
   function setNewScore(event, col, row) {
     let xScore = 0;
 
@@ -342,41 +416,14 @@ function App() {
     }
   }
 
-  function autoPlayStep() {
-    // const varStepArray = [];
-
-    const col = prevCol;
-    const row = prevRow;
-
-    console.log('autoPlayStep >>', col, row);
-
-    // varStepArray.push({col: col - 2, row: row - 1});
-    // varStepArray.push({col: col - 1, row: row - 2});
-    // varStepArray.push({col: col + 1, row: row - 2});
-    // varStepArray.push({col: col + 2, row: row - 1});
-    // varStepArray.push({col: col + 2, row: row + 1});
-    // varStepArray.push({col: col + 1, row: row + 2});
-    // varStepArray.push({col: col - 1, row: row + 2});
-    // varStepArray.push({col: col - 2, row: row + 1});
-    //
-    // varStepArray.forEach((item) => {
-    //   const el = getElementInGameArea(item.col, item.row);
-    //
-    //   if ((el) && (el.innerText === '')) {
-    //     return item;
-    //   }
-    // });
-    //
-    // console.log(varStepArray)
-  }
-
   return (
-    <div>
+    <div tabIndex="0" className="wrapper"  onKeyDown={ keyDownEvent } onKeyUp={ keyUpEvent }>
       <Header
         undoClick={ undo }
         newGameClick={ clearAreaClick }
         openSettings={ toggleOptionsPanel }
         openStatistics={ toggleStatisticsPanel }
+        openAbout={ toggleAboutPanel }
       />
 
       <OptionsPanel
@@ -387,6 +434,11 @@ function App() {
       <Statistics
         isOpen={ openStatistics }
         onClose={ toggleStatisticsPanel }
+      />
+
+      <About
+        isOpen={ openAbout }
+        onClose={ toggleAboutPanel }
       />
 
       <InfoPanel score={ score } />
