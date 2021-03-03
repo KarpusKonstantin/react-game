@@ -22,12 +22,11 @@ import correctSound from "./components/MyAudio/correct.mp3"
 import bgSound from "./components/MyAudio/Medianoche.mp3"
 
 import {useDispatch, useSelector} from "react-redux";
-import {setAutoPlay, setHint, setMusicMute, setOptions, setSoundMute} from "./reducers/reposReducer";
+import {setAutoPlay, setDarkTheme, setHint, setMusicMute, setOptions, setSoundMute} from "./reducers/reposReducer";
 import OptionsPanel from "./components/OptionsPanel/OptionsPanel";
 import Statistics from "./components/Statistics/Startistics";
 import { v4 as uuidv4 } from 'uuid'
 import About from "./components/About/About";
-import {useHotkeys} from "react-hotkeys-hook";
 import Footer from "./components/Footer/Footer";
 
 let timerId = 0;
@@ -51,6 +50,7 @@ function App() {
 
   const dispatch = useDispatch();
   const autoPlaySpeed = useSelector(state => state.repos.autoPlaySpeed);
+  const darkTheme = useSelector(state => state.repos.darkTheme);
 
   const optionsStore = useSelector(state => {
     const options = state.repos.options;
@@ -163,6 +163,7 @@ function App() {
 
     if (gameOptions) {
       dispatch(setOptions(gameOptions.options));
+      dispatch(setDarkTheme(gameOptions.darkTheme));
     }
 
   }, []);
@@ -418,8 +419,6 @@ function App() {
     });
   }
 
-
-
   function autoPlayStart(tId = 0) {
     clearAreaClick();
 
@@ -459,6 +458,21 @@ function App() {
         openAbout={ toggleAboutPanel }
       />
 
+      <div id="fsArea" style={ darkTheme ? {backgroundColor: 'black'} : {backgroundColor: 'white'}}>
+        <InfoPanel score={ score } />
+
+        <Container maxWidth="sm" >
+          <GameArea onClick={cellClick}/>
+        </Container>
+
+
+
+        <div className="fullScreen" onClick={() => toggleFullScreen()}>
+          {isFullScreen ? 'Выйти из полноэкранного режима' : 'Развернуть на весь экран'}
+        </div>
+
+      </div>
+
       <OptionsPanel
         isOpen={ openOptions }
         onClose={ toggleOptionsPanel }
@@ -474,23 +488,7 @@ function App() {
         onClose={ toggleAboutPanel }
       />
 
-      <div id="fsArea">
-        <InfoPanel score={ score } />
-
-        <Container maxWidth="sm" >
-          <GameArea onClick={cellClick}/>
-        </Container>
-
-
-
-        <div className="fullScreen" onClick={() => toggleFullScreen()}>
-          {isFullScreen ? 'Выйти из полноэкранного режима' : 'Развернуть на весь экран'}
-        </div>
-
-      </div>
-
-
-      <ModalDialog isOpen={ openModal } onClose={ handleCloseModalDialog } onNewGame={ clearAreaClick }/>
+      <ModalDialog currentScore={score} isOpen={ openModal } onClose={ handleCloseModalDialog } onNewGame={ clearAreaClick }/>
       <Notification isOpen={ openNotification } onClose={ handleCloseNotification } soundMute={ false } />
       <MyAudio audioClass={'audio'} />
       <MyAudio audioClass={'bgaudio'} />

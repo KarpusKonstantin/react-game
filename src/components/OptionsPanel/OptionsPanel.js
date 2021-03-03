@@ -6,16 +6,21 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
 import VolumeSettings from "../VolumeSettings/VolumeSettings";
 import {useDispatch, useSelector} from "react-redux";
-import {setAutoPlaySpeed, setHint} from "../../reducers/reposReducer"
+import {setAutoPlaySpeed, setDarkTheme, setHint} from "../../reducers/reposReducer"
 import TextField from "@material-ui/core/TextField";
 
 export default function OptionsPanel(props) {
   const dispatch = useDispatch();
   const hintValue = useSelector(state => state.repos.options.hint)
+  const themeValue = useSelector(state => state.repos.darkTheme)
   const autoPlaySpeedValue = useSelector(state => state.repos.autoPlaySpeed)
 
   function hintChange(event) {
     dispatch(setHint(event.target.checked));
+  }
+
+  function themeChange(event) {
+    dispatch(setDarkTheme(event.target.checked));
   }
 
   function autoPlaySpeedChange(event) {
@@ -32,6 +37,13 @@ export default function OptionsPanel(props) {
             <FormControlLabel
               control={< Switch checked={ hintValue } onChange={ hintChange } name="hint" /> }
               label="Включить подсказки (ctrl+alt+h)"
+            />
+          </FormGroup>
+
+          <FormGroup row className="hintSwitch">
+            <FormControlLabel
+              control={< Switch checked={ themeValue } onChange={ themeChange } name="hint" /> }
+              label="Светлая/темная тема"
             />
           </FormGroup>
 

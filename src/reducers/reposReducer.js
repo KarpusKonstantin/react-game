@@ -6,6 +6,7 @@ const SET_MUSIC_VOLUME = "SET_MUSIC_VOLUME";
 const SET_OPTIONS = "SET_OPTIONS";
 const SET_AUTOPLAY = "SET_AUTOPLAY";
 const SET_AUTOPLAY_SPEED = "SET_AUTOPLAY_SPEED";
+const SET_DARK_THEME = "SET_DARK_THEME";
 
 const defaultState = {
   options: {
@@ -20,7 +21,8 @@ const defaultState = {
     }
   },
   autoPlay: false,
-  autoPlaySpeed: 500
+  autoPlaySpeed: 500,
+  darkTheme: false
 }
 
 export default function reposReducer(state = defaultState, action) {
@@ -39,6 +41,11 @@ export default function reposReducer(state = defaultState, action) {
       return {
         ...state,
         autoPlaySpeed: action.payload
+      }
+    case SET_DARK_THEME:
+      return {
+        ...state,
+        darkTheme: action.payload
       }
     case SET_HINT:
       return {
@@ -109,3 +116,4 @@ export const setMusicVolume = (volume) => ({type:SET_MUSIC_VOLUME, payload:volum
 export const setOptions = (options) => ({type:SET_OPTIONS, payload:options});
 export const setAutoPlay = (bool) => ({type:SET_AUTOPLAY, payload:bool});
 export const setAutoPlaySpeed = (speed) => ({type:SET_AUTOPLAY_SPEED, payload:speed});
+export const setDarkTheme = (bool) => ({type:SET_DARK_THEME, payload:bool});
