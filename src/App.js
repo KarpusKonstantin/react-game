@@ -27,6 +27,8 @@ import OptionsPanel from "./components/OptionsPanel/OptionsPanel";
 import Statistics from "./components/Statistics/Startistics";
 import { v4 as uuidv4 } from 'uuid'
 import About from "./components/About/About";
+import {useHotkeys} from "react-hotkeys-hook";
+import Footer from "./components/Footer/Footer";
 
 let timerId = 0;
 
@@ -41,6 +43,9 @@ function App() {
   const [openAbout, setOpenAbout] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [openNotification, setOpenNotification] = useState(false);
+  const [isFullScreen, setIsFullScree] = useState(false);
+
+  const [av, setAv] = useState(false);
 
   let altPress, shiftPress, ctrlPress;
 
@@ -50,18 +55,32 @@ function App() {
   const optionsStore = useSelector(state => {
     const options = state.repos.options;
 
-    console.log('use selector >>', options.hint);
-
     if ((options.hint) && (score !== 0)) {
       showHint(prevCol, prevRow)
     } else {
       hideHint();
     }
 
+    if (options.music.mute) {
+      playSound('.bgaudio', bgSound, options.music.volume);
+    } else {
+      playSound('.bgaudio', '', options.music.volume);
+    }
+
     return options;
   })
 
   const autoPlay = useSelector(state => state.repos.autoPlay);
+
+  // useHotkeys('ctrl+alt+n', () => clearAreaClick())
+  // useHotkeys('ctrl+alt+h', () => dispatch(setHint(!optionsStore.hint)))
+  // useHotkeys('ctrl+alt+s', () => setOpenStatistics(true))
+  // useHotkeys('ctrl+alt+a', () => dispatch(setAutoPlay(!autoPlay)))
+  // useHotkeys('ctrl+alt+z', () => {
+  //   console.log('z', optionsStore.sound.mute)
+  //   dispatch(setSoundMute(!optionsStore.sound.mute))
+  // })
+  // useHotkeys('ctrl+alt+m', () => dispatch(setMusicMute(!optionsStore.music.mute)))
 
   function keyDownEvent(event) {
     const codeKey = event.code;
@@ -134,6 +153,7 @@ function App() {
     if (gameOptions) {
       if ((gameOptions.options.music.mute) && (gameOptions.options.music.volume > 0)) {
         playSound('.bgaudio', bgSound, gameOptions.options.music.volume)
+        setAv(true);
       }
     }
 
@@ -416,6 +436,19 @@ function App() {
     }
   }
 
+  function toggleFullScreen() {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+      setIsFullScree(false);
+    } else {
+      document.getElementById('fsArea').requestFullscreen().catch((e) => {
+        console.log('Full Screen error >>', e);
+      })
+      setIsFullScree(true);
+    }
+  }
+
+
   return (
     <div tabIndex="0" className="wrapper"  onKeyDown={ keyDownEvent } onKeyUp={ keyUpEvent }>
       <Header
@@ -441,16 +474,27 @@ function App() {
         onClose={ toggleAboutPanel }
       />
 
-      <InfoPanel score={ score } />
+      <div id="fsArea">
+        <InfoPanel score={ score } />
 
-      <Container maxWidth="sm">
-        <GameArea onClick={cellClick}/>
-      </Container>
+        <Container maxWidth="sm" >
+          <GameArea onClick={cellClick}/>
+        </Container>
+
+
+
+        <div className="fullScreen" onClick={() => toggleFullScreen()}>
+          {isFullScreen ? 'Выйти из полноэкранного режима' : 'Развернуть на весь экран'}
+        </div>
+
+      </div>
+
 
       <ModalDialog isOpen={ openModal } onClose={ handleCloseModalDialog } onNewGame={ clearAreaClick }/>
       <Notification isOpen={ openNotification } onClose={ handleCloseNotification } soundMute={ false } />
       <MyAudio audioClass={'audio'} />
       <MyAudio audioClass={'bgaudio'} />
+      <Footer />
     </div>
   );
 }

@@ -6,7 +6,8 @@ import Button from "@material-ui/core/Button";
 import UndoIcon from "@material-ui/icons/Undo";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import SettingsIcon from "@material-ui/icons/Settings";
-import PlayIcon from "@material-ui/icons/PlayArrow";
+import HelpIcon from "@material-ui/icons/Help";
+import TableIcon from "@material-ui/icons/TableChart";
 
 import './header.css'
 import FormControlLabel from "@material-ui/core/FormControlLabel";
@@ -24,29 +25,35 @@ function Header(props) {
   }
 
   return (
-    <header>
-      <AppBar position="fixed">
-        <Toolbar>
+    <div>
+      <AppBar position="static">
+        <Toolbar className="toolbar">
           <Typography variant="h6" noWrap>
             Игра "Ход конем"
           </Typography>
 
-          <Button variant="contained" color="secondary" startIcon={<UndoIcon />} onClick={props.undoClick}>Отменить ход</Button>
-          <Button variant="contained" color="secondary" startIcon={<RefreshIcon />} onClick={props.newGameClick}>Новая игра</Button>
+          <div className="centerButton">
+            <Button variant="contained" color="secondary" startIcon={<UndoIcon />} onClick={props.undoClick}>Отменить ход</Button>
+            <Button variant="contained" color="secondary" startIcon={<RefreshIcon />} onClick={props.newGameClick}>Новая игра</Button>
 
-          <FormControlLabel
-            control={< Switch checked={ autoPlay } onChange={ autoPlayChange } name="hint" /> }
-            label="Автоигра"
-          />
+          </div>
+          <div className="autoPlay">
+            <FormControlLabel
+              control={< Switch checked={ autoPlay } onChange={ autoPlayChange } name="hint" /> }
+              label="Автоигра (ctrl+alt+a)"
+            />
+          </div>
 
-          <Button variant="contained" color="default" startIcon={<SettingsIcon />} onClick={props.openSettings(true)}>Настройки</Button>
-          <Button variant="contained" color="default" startIcon={<RefreshIcon />} onClick={props.openStatistics(true)}>Статистика</Button>
-          <Button variant="contained" color="default" startIcon={<RefreshIcon />} onClick={props.openAbout(true)}>Об игре</Button>
+          <div className="leftButton">
+            <Button variant="contained" color="default" startIcon={<SettingsIcon />} onClick={props.openSettings(true)}>Настройки</Button>
+            <Button variant="contained" color="default" startIcon={<TableIcon />} onClick={props.openStatistics(true)}>Статистика</Button>
+            <Button variant="contained" color="default" startIcon={<HelpIcon />} onClick={props.openAbout(true)}>Об игре</Button>
+          </div>
+
 
         </Toolbar>
       </AppBar>
-      <Toolbar/>
-    </header>
+    </div>
   )
 }
 

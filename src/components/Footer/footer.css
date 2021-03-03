@@ -1,0 +1,33 @@
+.footer {
+    height: 100px;
+}
+.footer__bottom {
+    border-top: 1px solid rgba(27, 27, 27, 0.3);
+    font-size: 14px;
+    font-weight: 300;
+    padding-top: 21px;
+    padding-bottom: 18px;
+}
+
+.footer__bottom-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.footer__payments {
+    display: flex;
+    align-items: center;
+}
+
+.footer__payments-rs {
+    height: 50px;
+}
+
+.footer__icon {
+    display: flex;
+}
+
+.footer__icon-item {
+    margin-left: 25px;
+}

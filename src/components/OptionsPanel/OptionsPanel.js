@@ -31,7 +31,7 @@ export default function OptionsPanel(props) {
           <FormGroup row className="hintSwitch">
             <FormControlLabel
               control={< Switch checked={ hintValue } onChange={ hintChange } name="hint" /> }
-              label="Включить подсказки"
+              label="Включить подсказки (ctrl+alt+h)"
             />
           </FormGroup>
 
@@ -48,8 +48,8 @@ export default function OptionsPanel(props) {
             variant="outlined"
           />
 
-          <VolumeSettings title={'Настройка звуков'} name="sound"  />
-          <VolumeSettings title={'Настройка музыки'} name="music"  />
+          <VolumeSettings title={'Настройка звуков (ctrl+alt+z)'} name="sound"  />
+          <VolumeSettings title={'Настройка музыки (ctrl+alt+m)'} name="music"  />
 
         </div>
       </Drawer>

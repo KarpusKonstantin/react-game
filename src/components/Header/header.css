@@ -1,0 +1,16 @@
+.toolbar {
+    justify-content: space-between;
+}
+
+.centerButton {
+    display: flex;
+    justify-content: space-between;
+}
+
+.centerButton button {
+    margin-left: 20px;
+}
+
+.leftButton button {
+    margin-left: 20px;
+}

@@ -22,10 +22,10 @@ function ModalDialog(props) {
       </DialogContent>
       <DialogActions>
         <Button onClick={ props.onClose} color="primary">
-          Неа
+          Нет
         </Button>
         <Button onClick={ props.onNewGame} color="primary" autoFocus>
-          Ага
+          Да
         </Button>
       </DialogActions>
     </Dialog>

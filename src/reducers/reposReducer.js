@@ -15,7 +15,7 @@ const defaultState = {
       volume: 1
     },
     music: {
-      mute: true,
+      mute: false,
       volume: 0.5
     }
   },
@@ -65,7 +65,7 @@ export default function reposReducer(state = defaultState, action) {
         options: {
           ...state.options,
           music:{
-            ...state.options.sound,
+            ...state.options.music,
             mute: action.payload
           }
         },
@@ -89,7 +89,7 @@ export default function reposReducer(state = defaultState, action) {
         options: {
           ...state.options,
           music:{
-            ...state.options.sound,
+            ...state.options.music,
             volume: action.payload
           }
         },
