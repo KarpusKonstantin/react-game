@@ -14,13 +14,15 @@ export function getElementInGameArea(col, row) {
 export function statusGameCheck(col, row, score, cb) {
   let xCount = 0;
 
+  console.log(col, row, score);
+
   if  (((col - 2) >= 1) && ((row - 1) >= 1)) {
     if (getElementInGameArea((col - 2), (row - 1)).innerText !== '') {
       xCount = xCount + 1;
     }
   } else xCount = xCount + 1;
 
-  if (((col - 2) >= 1) && ((row - 2) >= 1)) {
+  if (((col - 1) >= 1) && ((row - 2) >= 1)) {
     if (getElementInGameArea((col - 1), (row - 2)).innerText !== '') {
       xCount = xCount + 1;
     }
