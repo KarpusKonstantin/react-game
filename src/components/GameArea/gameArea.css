@@ -7,8 +7,9 @@
     padding: 10px;
 
 
-    grid-template-columns: repeat(10, 1fr);
-    grid-template-rows: repeat(10, 1fr);
+    grid-template-columns: repeat(10, minmax(1%, 1fr));
+    grid-template-rows: repeat(10, minmax(1%, 1fr));
+    /*grid-template-rows: repeat(10, 1fr);*/
     grid-gap: .5vw;
 }
 
